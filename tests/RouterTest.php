@@ -11,7 +11,7 @@
 namespace Facebook\HackRouter;
 
 use function Facebook\FBExpect\expect;
-use namespace HH\Lib\Dict;
+use namespace HH\Lib\{Dict, Str};
 use type Facebook\HackRouter\Tests\TestRouter;
 use type Facebook\HackTest\DataProvider;
 use type Usox\HackTTP\{ServerRequestFactory, UriFactory};
@@ -147,12 +147,37 @@ final class RouterTest extends \Facebook\HackTest\HackTest {
     expect(() ==> $router->routeMethodAndPath(HttpMethod::GET, 'headonly'))->toThrow(
       MethodNotAllowedException::class,
     );
+    try {
+      $router->routeMethodAndPath(HttpMethod::GET, 'headonly');
+      static::fail(
+        Str\format('Failed asserting that %s was thrown.', MethodNotAllowedException::class)
+      );
+    } catch(MethodNotAllowedException $e) {
+      expect($e->getAllowedMethods())->toBeSame(keyset[HttpMethod::HEAD]);
+    }
     expect(() ==> $router->routeMethodAndPath(HttpMethod::HEAD, 'postonly'))->toThrow(
       MethodNotAllowedException::class,
     );
+    try {
+      $router->routeMethodAndPath(HttpMethod::HEAD, 'postonly');
+      static::fail(
+        Str\format('Failed asserting that %s was thrown.', MethodNotAllowedException::class)
+      );
+    } catch(MethodNotAllowedException $e) {
+      expect($e->getAllowedMethods())->toBeSame(keyset[HttpMethod::POST]);
+    }
     expect(() ==> $router->routeMethodAndPath(HttpMethod::GET, 'postonly'))->toThrow(
       MethodNotAllowedException::class,
     );
+    try {
+      $router->routeMethodAndPath(HttpMethod::GET, 'postonly');
+      static::fail(
+        Str\format('Failed asserting that %s was thrown.', MethodNotAllowedException::class)
+      );
+    } catch(MethodNotAllowedException $e) {
+      expect($e->getAllowedMethods())->toContain(HttpMethod::POST);
+    }
+
   }
 
   <<DataProvider('expectedMatches')>>
